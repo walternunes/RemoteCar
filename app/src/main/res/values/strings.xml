@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Remote Car</string>
+    <string name="sensor_label">Sensor</string>
+    <string name="sensor_active">Active</string>
+    <string name="sensor_unavailable">Unavailable</string>
+    <string name="action_config">Settings</string>
+    <string name="action_reset">Reset</string>
+    <string name="label_x_axis">X-Axis:</string>
+    <string name="label_y_axis">Y-Axis:</string>
+    <string name="label_z_axis">Z-Axis:</string>
+    <string name="value_default">0.0</string>
+    <string name="confirm_label">I got this.</string>
+    <string name="stand_position">You are not in Stand position !</string>
+
+</resources>
