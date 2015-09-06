@@ -16,24 +16,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
-/*
- * Low-Pass Linear Acceleration
- * Copyright (C) 2013-2014, Kaleb Kircher - Kircher Engineering, LLC
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 /**
  * Draws an analog gauge for displaying rotation measurements in three-space
  * from device sensors.
@@ -45,9 +27,6 @@ import android.view.View;
  */
 public final class GaugeRotation extends View
 {
-
-	
-
 	private static final String tag = GaugeRotation.class.getSimpleName();
 
 	// drawing tools
@@ -173,8 +152,7 @@ public final class GaugeRotation extends View
 				- rimOuterSize);
 
 		// still a work in progress changing the rimOuterSize will not
-		// dynamically
-		// change the small rectangles to the appropriate size.
+		// dynamically change the small rectangles to the appropriate size.
 		rimTopRect = new RectF(0.5f, 0.106f, 0.5f, 0.06f);
 		rimTopRect.set(rimTopRect.left + rimOuterSize, rimTopRect.top
 				+ rimOuterSize, rimTopRect.right - rimOuterSize,
@@ -223,13 +201,13 @@ public final class GaugeRotation extends View
 		skyBackgroundRect.set(rimRect.left + rimSize, rimRect.top + rimSize,
 				rimRect.right - rimSize, rimRect.bottom - rimSize);
 
-		// now set to black
+		// set to black
 		skyPaint = new Paint();
 		skyPaint.setAntiAlias(true);
 		skyPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
 		skyPaint.setColor(Color.WHITE);
 
-		// now set to white
+		// set to white
 		earthPaint = new Paint();
 		earthPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
 		earthPaint.setShader(new LinearGradient(0.40f, 0.0f, 0.60f, 1.0f, Color
@@ -267,10 +245,6 @@ public final class GaugeRotation extends View
 		numericPaint.setTypeface(Typeface.DEFAULT);
 		numericPaint.setAntiAlias(true);
 		numericPaint.setTextAlign(Paint.Align.CENTER);
-		// Bug issue with 4.2.1, only displays first digit. The answer is to
-		// include setLinearText(true) on your paint for the text. This method
-		// is showing as deprecated, but it's the only solution for the text to
-		// display properly.
 		numericPaint.setLinearText(true);
 
 		smallTickPaint = new Paint();
@@ -312,7 +286,7 @@ public final class GaugeRotation extends View
 			return size;
 		}
 		else
-		{ // (mode == MeasureSpec.UNSPECIFIED)
+		{
 			return getPreferredSize();
 		}
 	}

@@ -22,8 +22,9 @@
         android:layout_height="40dp"
         android:background="@drawable/btscan"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="10dp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="5dp"
         android:text="" />
 
     <ToggleButton
@@ -49,7 +50,7 @@
         android:text=""
         android:textOff=""
         android:textOn="" />
-    
+
     <ToggleButton
         android:id="@+id/toggleButtonLantern"
         android:layout_width="60dp"
@@ -62,7 +63,7 @@
         android:textOff=""
         android:textOn=""
         android:visibility="invisible"
-         />
+        />
 
     <ToggleButton
         android:id="@+id/toggleButtonAlert"
@@ -85,6 +86,70 @@
         android:text="@string/stand_position"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@color/light_red" />
+
+    <ImageView
+        android:id="@+id/imageView_stand_position"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="23dp"
+        android:background="@drawable/stand_warning"
+        android:visibility="visible" />
+
+    <ImageView
+        android:id="@+id/imageView_level1"
+        android:layout_width="30dp"
+        android:layout_height="20dp"
+        android:layout_below="@+id/label_stand_position"
+        android:layout_marginTop="40dp"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/acceleration_level1"
+        android:visibility="invisible"/>
+
+    <ImageView
+        android:id="@+id/imageView_level2"
+        android:layout_width="30dp"
+        android:layout_height="20dp"
+        android:layout_below="@+id/label_stand_position"
+        android:layout_toRightOf="@+id/imageView_level1"
+        android:layout_marginTop="40dp"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/acceleration_level2"
+        android:visibility="invisible"/>
+
+    <ImageView
+        android:id="@+id/imageView_level3"
+        android:layout_width="30dp"
+        android:layout_height="20dp"
+        android:layout_below="@+id/label_stand_position"
+        android:layout_toRightOf="@+id/imageView_level2"
+        android:layout_marginTop="40dp"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/acceleration_level3"
+        android:visibility="invisible"/>
+
+    <ImageView
+        android:id="@+id/imageView_levelr2"
+        android:layout_width="30dp"
+        android:layout_height="20dp"
+        android:layout_below="@+id/label_stand_position"
+        android:layout_toLeftOf="@+id/imageView_level1"
+        android:layout_marginTop="40dp"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/acceleration_level2"
+        android:visibility="invisible"/>
+
+    <ImageView
+        android:id="@+id/imageView_levelr3"
+        android:layout_width="30dp"
+        android:layout_height="20dp"
+        android:layout_below="@+id/label_stand_position"
+        android:layout_toLeftOf="@+id/imageView_levelr2"
+        android:layout_marginTop="40dp"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/acceleration_level3"
+        android:visibility="invisible"/>
 
     <LinearLayout
         android:layout_width="match_parent"

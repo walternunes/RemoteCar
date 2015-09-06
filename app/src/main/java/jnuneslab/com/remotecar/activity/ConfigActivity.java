@@ -14,10 +14,8 @@ import android.preference.PreferenceActivity;
  */
 public class ConfigActivity extends PreferenceActivity 
 {
+	//TODO Preference Activity - Add or remove features in the car
 /*
-	public static final String FUSION_PREFERENCE = "fusion_preference";
-	public static final String UNITS_PREFERENCE = "units_preference";
-
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
