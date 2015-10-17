@@ -1,6 +1,9 @@
 package jnuneslab.com.remotecar.activity;
 
 import java.text.DecimalFormat;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -33,6 +36,7 @@ import jnuneslab.com.remotecar.draw.filter.MeanFilter;
 import jnuneslab.com.remotecar.draw.gauge.GaugeRotation;
 import jnuneslab.com.remotecar.bluetooth.BluetoothSPPConnection;
 import jnuneslab.com.remotecar.bluetooth.BluetoothSPPConnectionListener;
+import jnuneslab.com.remotecar.enums.ControlEnum;
 
 /**
  * Main Activate responsible for initialize all the sensors and filters necessary to draw the gauge
@@ -80,6 +84,15 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
 
     // SensorManager used to register for Sensor Events.
     private SensorManager mSensorManager;
+
+    // Acceleration image variables
+    public final int ACCELERATION_IMAGE_GONE = 0;
+    public final int ACCELERATION_REVERT_IMAGE_LEVEL_1 = 1;
+    public final int ACCELERATION_IMAGE_LEVEL_2 = 2;
+    public final int ACCELERATION_IMAGE_LEVEL_3 = 3;
+    public final int REVERT_IMAGE_LEVEL_2 = 4;
+    public final int REVERT_IMAGE_LEVEL_3 = 5;
+
 
     // ImageViews
     private ImageView mImageViewAccLevel1;
@@ -132,6 +145,9 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
 
     // Buttons
     private Button button_scan;
+
+    //Flag that says if the device is connected
+    private boolean mIsconnected = false;
 
     // Command Map Vector sent by bluetooth:
     private  byte command [];
@@ -192,7 +208,7 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
              public void onClick(View v) {
                  boolean on = ((ToggleButton) v).isChecked();
                  if(on){
-                     command[3] = '1'; 
+                     command[ControlEnum.SIGNALIZATION_COMMAND.getId()] = ControlEnum.SIGNALIZATION_COMMAND.SIGN_TURN_RIGHT;
                      if(buttonLeftSign.isChecked()){
                          buttonLeftSign.setChecked(false);
                      }
@@ -201,7 +217,7 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
                      }
                      mBluetoothSPPConnection.write(command);
                  }else{
-                     command[3] = '0'; 
+                     command[ControlEnum.SIGNALIZATION_COMMAND.getId()] = ControlEnum.SIGNALIZATION_COMMAND.SIGN_OFF;
                      mBluetoothSPPConnection.write(command);
                  }
              }
@@ -212,8 +228,8 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
          buttonLeftSign.setOnClickListener(new OnClickListener() {            
              public void onClick(View v) {
                  boolean on = ((ToggleButton) v).isChecked();
-                 if(on){                    
-                     command[3] = '2'; 
+                 if(on){
+                     command[ControlEnum.SIGNALIZATION_COMMAND.getId()] = ControlEnum.SIGNALIZATION_COMMAND.SIGN_TURN_LEFT;
                      if(buttonRightSign.isChecked()){
                          buttonRightSign.setChecked(false);
                      }
@@ -222,7 +238,7 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
                      }
                      mBluetoothSPPConnection.write(command);
                  }else{
-                     command[3] = '0'; 
+                     command[ControlEnum.SIGNALIZATION_COMMAND.getId()] = ControlEnum.SIGNALIZATION_COMMAND.SIGN_OFF;
                      mBluetoothSPPConnection.write(command);
                  }
              }
@@ -234,7 +250,7 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
              public void onClick(View v) {
                  boolean on = ((ToggleButton) v).isChecked();
                  if(on){
-                     command[2] = '4';
+                     command[ControlEnum.SIGNALIZATION_COMMAND.getId()] = ControlEnum.SIGNALIZATION_COMMAND.SIGN_ALERT;
                      if(buttonLeftSign.isChecked()){
                          buttonLeftSign.setChecked(false);
                      }
@@ -243,7 +259,7 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
                      }
                      mBluetoothSPPConnection.write(command);
                  }else{
-                     command[2] = '0'; 
+                     command[ControlEnum.SIGNALIZATION_COMMAND.getId()] = ControlEnum.SIGNALIZATION_COMMAND.SIGN_OFF;
                      mBluetoothSPPConnection.write(command);
                  }
              }
@@ -255,36 +271,26 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
              public void onClick(View v) {
                  boolean on = ((ToggleButton) v).isChecked();
                  if(on){
-                     command[2] = '1'; 
+                     command[ControlEnum.HIGHLIGHTS_COMMAND.getId()] = ControlEnum.HIGHLIGHTS_COMMAND.HIGHLIGHT_ON;
                      mBluetoothSPPConnection.write(command);
                  }else{
-                     command[2] = '0'; 
+                     command[ControlEnum.HIGHLIGHTS_COMMAND.getId()] = ControlEnum.HIGHLIGHTS_COMMAND.HIGHLIGHT_OFF;
                      mBluetoothSPPConnection.write(command);
                  }
              }
          });
 
-         //Register Lantern listener
-         buttonLantern = (ToggleButton) findViewById(R.id.toggleButtonLantern);
-         buttonLantern.setOnClickListener(new OnClickListener() {            
-             public void onClick(View v) {
-                 boolean on = ((ToggleButton) v).isChecked();
-                 if(on){
-                     command[2] = '2'; 
-                     mBluetoothSPPConnection.write(command);
-                 }else{
-                     command[2] = '0'; 
-                     mBluetoothSPPConnection.write(command);
-                 }
-             }
-         });
 
         // Register bluetooth scan listener
         button_scan = (Button) findViewById(R.id.scan);
         button_scan.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
+                if(!mIsconnected){
                     Intent serverIntent = new Intent(v.getContext(), DeviceListActivity.class);
                     startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+                }else{
+                    mBluetoothSPPConnection.close();
+                }
             }
         });
         
@@ -308,14 +314,14 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
                 if(x > mWidth){
                     //accelerate - right side of the screen
                     if (D) Log.d(TAG, "Acceleration touch pressed");
-                    command[0] = '1';
-                    printAccelerationSpeedLevel(1);
+                    command[ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.ACCELERATION_SPEED_LEVEL1;
+                    printAccelerationSpeedLevel(ACCELERATION_REVERT_IMAGE_LEVEL_1);
                     mBluetoothSPPConnection.write(command);
                 }else{
                     //reverse - left side of the screen
                     if (D) Log.d(TAG, "Reversion touch released");
-                    command[0] = '4';
-                    printAccelerationSpeedLevel(1);
+                    command[ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.REVERT_SPEED_LEVEL1;
+                    printAccelerationSpeedLevel(ACCELERATION_REVERT_IMAGE_LEVEL_1);
                     mBluetoothSPPConnection.write(command); 
                 }
                 break;
@@ -334,37 +340,37 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
                     if(x > mWidth){
                         if(y - mYDelta < -300){
                             if (D) Log.d(TAG, "Acceleration speed is 3 - current Y axis - " + y + " - Delta Y - " + mYDelta + " - (Y - DeltaY =" + (y-mYDelta));
-                            command[0] = '3';
-                            printAccelerationSpeedLevel(3);
+                            command[ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.ACCELERATION_SPEED_LEVEL3;
+                            printAccelerationSpeedLevel(ACCELERATION_IMAGE_LEVEL_3);
                             mBluetoothSPPConnection.write(command);
                         }
                         else if(y - mYDelta < -150){
                             if (D) Log.d(TAG, "Acceleration speed is 2 - current Y axis - " + y + " - Delta Y - " + mYDelta + " - (Y - DeltaY =" + (y-mYDelta));
-                            command[0] = '2';
-                            printAccelerationSpeedLevel(2);
+                            command[ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.ACCELERATION_SPEED_LEVEL2;
+                            printAccelerationSpeedLevel(ACCELERATION_IMAGE_LEVEL_2);
                             mBluetoothSPPConnection.write(command);
                         } else {
                             if (D) Log.d(TAG, "Acceleration speed is 1 - current Y axis - " + y + " - Delta Y - " + mYDelta + " - (Y - DeltaY =" + (y-mYDelta));
-                            command[0] = '1';
-                            printAccelerationSpeedLevel(1);
+                            command[ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.ACCELERATION_SPEED_LEVEL1;
+                            printAccelerationSpeedLevel(ACCELERATION_REVERT_IMAGE_LEVEL_1);
                             mBluetoothSPPConnection.write(command);
                         }
                     } else{
                         if(y - mYDelta < -300){
                             if (D) Log.d(TAG, "Reversion speed is 3 - current Y axis - " + y + " - Delta Y - " + mYDelta + " - (Y - DeltaY =" + (y-mYDelta));
-                            command[0] = '6';
-                            printAccelerationSpeedLevel(5);
+                            command[ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.REVERT_SPEED_LEVEL3;
+                            printAccelerationSpeedLevel(REVERT_IMAGE_LEVEL_3);
                             mBluetoothSPPConnection.write(command);
                         }
                         else if(y - mYDelta < -150){
                             if (D) Log.d(TAG, "Reversion speed is 2 - current Y axis - " + y + " - Delta Y - " + mYDelta + " - (Y - DeltaY =" + (y-mYDelta));
-                            command[0] = '5';
-                            printAccelerationSpeedLevel(4);
+                            command[ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.REVERT_SPEED_LEVEL2;
+                            printAccelerationSpeedLevel(REVERT_IMAGE_LEVEL_2);
                             mBluetoothSPPConnection.write(command);
                         } else {
                             if (D) Log.d(TAG, "Reversion speed is 1 - current Y axis - " + y + " - Delta Y - " + mYDelta + " - (Y - DeltaY =" + (y-mYDelta));
-                            command[0] = '4';
-                            printAccelerationSpeedLevel(1);
+                            command[ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.REVERT_SPEED_LEVEL1;
+                            printAccelerationSpeedLevel(ACCELERATION_REVERT_IMAGE_LEVEL_1);
                             mBluetoothSPPConnection.write(command);
                         }                                               
                     }
@@ -376,13 +382,13 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
             case MotionEvent.ACTION_UP:{      
                 if(x > mWidth){
                     if (D) Log.d(TAG, "Acceleration touch released");
-                    command[0] = '0';
-                    printAccelerationSpeedLevel(0);
+                    command[ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.STOP;
+                    printAccelerationSpeedLevel(ACCELERATION_IMAGE_GONE);
                     mBluetoothSPPConnection.write(command);
                 }else  {
                     if (D) Log.d(TAG, "Reversion touch released");
-                    command[0] = '0';
-                    printAccelerationSpeedLevel(0);
+                    command[ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.STOP;
+                    printAccelerationSpeedLevel(ACCELERATION_IMAGE_GONE);
                     mBluetoothSPPConnection.write(command); 
                 }
                 break;
@@ -401,7 +407,7 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
      */
     private void printAccelerationSpeedLevel(int level){
         switch (level){
-            case 1:{
+            case ACCELERATION_REVERT_IMAGE_LEVEL_1:{
                 mImageViewAccLevel1.setVisibility(View.VISIBLE);
                 mImageViewAccLevel2.setVisibility(View.INVISIBLE);
                 mImageViewAccLevelr2.setVisibility(View.INVISIBLE);
@@ -409,23 +415,23 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
                 mImageViewAccLevelr3.setVisibility(View.INVISIBLE);
                 break;
             }
-            case 2:{
+            case ACCELERATION_IMAGE_LEVEL_2:{
                 mImageViewAccLevel1.setVisibility(View.VISIBLE);
                 mImageViewAccLevel2.setVisibility(View.VISIBLE);
                 mImageViewAccLevel3.setVisibility(View.INVISIBLE);
                 break;
             }
-            case 3:{
+            case ACCELERATION_IMAGE_LEVEL_3:{
                 mImageViewAccLevel3.setVisibility(View.VISIBLE);
                 break;
             }
-            case 4:{
+            case REVERT_IMAGE_LEVEL_2:{
                 mImageViewAccLevel1.setVisibility(View.VISIBLE);
                 mImageViewAccLevelr2.setVisibility(View.VISIBLE);
                 mImageViewAccLevelr3.setVisibility(View.INVISIBLE);
                 break;
             }
-            case 5:{
+            case REVERT_IMAGE_LEVEL_3:{
                 mImageViewAccLevelr3.setVisibility(View.VISIBLE);
                 break;
             }
@@ -582,7 +588,7 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
 
         // Controlling Z Axis
         if (z1 < 1.05) { // Limit in Z Axis to make the accelerometer works as expected in this position
-            mTextStand.setVisibility(View.INVISIBLE);
+           // mTextStand.setVisibility(View.INVISIBLE);
             mImageViewStandWarning.setVisibility(View.INVISIBLE);
         } else {
             mImageViewStandWarning.setVisibility(View.VISIBLE);
@@ -591,19 +597,19 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
         // Controlling Y Axis
         if (y1 < -0.50) { // Bellow this limit in Y Axis indicates to turn left
             if (DEBUG_DIRECTION) Log.d(TAG, "Turning Left event");
-            command[1] = '1';
+            command[ControlEnum.DIRECTION_COMMAND.getId()] = ControlEnum.DIRECTION_COMMAND.TURN_LEFT;
             mTextRight.setTextColor(color_green);
             mBluetoothSPPConnection.write(command);
 
         } else if (y1 > 0.50) { // Above this limit in Y Axis indicates to turn right
             if (DEBUG_DIRECTION) Log.d(TAG, "Turning right event");
-            command[1] = '2';
+            command[ControlEnum.DIRECTION_COMMAND.getId()] = ControlEnum.DIRECTION_COMMAND.TURN_RIGHT;
             mTextLeft.setTextColor(color_green);
             mBluetoothSPPConnection.write(command);
 
         } else {
             if (DEBUG_DIRECTION) Log.d(TAG, "Straight ahead event");
-            command[1] = '0';
+            command[ControlEnum.DIRECTION_COMMAND.getId()] = ControlEnum.DIRECTION_COMMAND.STRAIGHT_AHEAD;
             mTextLeft.setTextColor(color_white);
             mTextRight.setTextColor(color_white);
             mBluetoothSPPConnection.write(command);
@@ -769,14 +775,47 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
     }
 
     /**
+     * Method responsible to show the text in the UI
+     * @param text - text to be shown
+     * @param color - color of the text
+     */
+    public void showText(String text, int color){
+        mTextStand.setText(text);
+        mTextStand.setTextColor(color);
+        mTextStand.setVisibility(View.VISIBLE);
+
+    }
+
+    /**
+     * Method responsible to make the text disappear from the UI after a short period of time
+     * @param duration - time spent to vanish the text
+     */
+    public void timerDisableText(int duration){
+        Timer buttonTimer = new Timer();
+        buttonTimer.schedule(new TimerTask() {
+
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        mTextStand.setVisibility(View.INVISIBLE);
+                    }
+                });
+            }
+        }, duration);
+
+    }
+
+    /**
      * Method called in the moment that the phone starts to connecting with the bluetooth module.
      */
     public void onConnecting() {
         if (D) Log.d(TAG, "Connecting...");
 
-        // Change the text in the connectionInfo TextView       
-        mTextStand.setText("Connecting...");
-        mTextStand.setVisibility(View.VISIBLE);
+        // Change the text in the connectionInfo TextView
+        showText("Connecting...", color_green);
     }
 
     /**
@@ -784,73 +823,49 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
      */
     @SuppressLint("NewApi")
     public void onConnected() {
-        if (D) Log.d(TAG, "Connected");
+        final int FIVE_SECONDS = 5000;
 
+        if (D) Log.d(TAG, "Connected");
         // Change the text in the connectionInfo TextView
-        mTextStand.setText("Connected to " + mBluetoothSPPConnection.getDeviceName());
-        mTextStand.setTextColor(color_green);
-        mTextStand.setVisibility(View.VISIBLE);
-        
+        showText("Connected to " + mBluetoothSPPConnection.getDeviceName(), color_green);
+        timerDisableText(FIVE_SECONDS);
+        mIsconnected = true;
         button_scan.setBackground(getResources().getDrawable(R.drawable.btscan_green));
     }
 
     /**
      * Method called when the intended connection could not be realized.
      */
+    @SuppressLint("NewApi")
     public void onConnectionFailed() {
         if (D) Log.d(TAG, "Connection fail");
 
-        // Change the text in the connectionInfo TextView        
-        mTextStand.setText("Connection failed!");
-        mTextStand.setTextColor(color_red);
-        mTextStand.setVisibility(View.VISIBLE);
+        // Change the text in the connectionInfo TextView
+        showText("Connection failed!", color_red);
+        mIsconnected = false;
+        button_scan.setBackground(getResources().getDrawable(R.drawable.btscan));
     }
 
     /**
      * Method called when the intended connection has been lost by some reason (e.g. the signal is lost when the car go to far)
      */
+    @SuppressLint("NewApi")
     public void onConnectionLost() {
-        if (D) Log.d(TAG, "Connect lost");
+        final int FIVE_SECONDS = 5000;
 
+        if (D) Log.d(TAG, "Connect lost");
         // Change the text in the connectionInfo TextView
-        mTextStand.setText("Not Connected!");
-        mTextStand.setTextColor(color_red);
-        mTextStand.setVisibility(View.VISIBLE);
+        showText("Not Connected!", color_red);
+        timerDisableText(FIVE_SECONDS);
+        mIsconnected = false;
+        button_scan.setBackground(getResources().getDrawable(R.drawable.btscan));
     }
 
 
     //useless ? - implemented but not used
 
     public void bluetoothWrite(int bytes, byte[] buffer) {
-        /*
-        // This function is called when the bluetooth module sends data to the android device.
-        // The function is executed in the main thread.
 
-        // Normalize the gravity vector and rescaled it so that every component fits one byte.
-     //   float size=(float) Math.sqrt(Math.pow(gravity[0], 2)+Math.pow(gravity[1], 2)+Math.pow(gravity[2], 2));
-    //    byte x = (byte) (128*gravity[0]/size);
-     //   byte y = (byte) (128*gravity[1]/size);
-     //   byte z = (byte) (128*gravity[2]/size);
-
-        // If we are in driving mode, send the 'c' character followed the gravity components.
-        if (true) {
-
-        //  command[0]=1;
-        //  command[1]=0;
-        //  command[2]=y;
-         // command[3]=z;
-
-          command[0]='z';
-          command[1]='x';
-          mBluetoothSPPConnection.write(command);
-
-        // If we are not in driving mode, send the 's' character.
-        } else {
-          byte[] command = new byte[1];
-          command[0]='s';
-          mBluetoothSPPConnection.write(command);
-        }
-       */
     }
 
 }
