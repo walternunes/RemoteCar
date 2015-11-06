@@ -12,10 +12,13 @@ package jnuneslab.com.remotecar.enums;
 // [1] = 1 => left
 // [1] = 2 => right
 
+/**
+ * Enum that represents all the commands used to communicate with the hardware
+ */
 public enum ControlEnum {
 
 
-    ACCELARETION_SPEED_LEVEL_COMMAND{
+    ACCELERATION_SPEED_LEVEL_COMMAND {
         @Override
         public Integer getId() {
 

@@ -46,7 +46,7 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
 
     // Debugging
     private static final String TAG = PanelActivity.class.getSimpleName();
-    private static final boolean D = false;
+    private static final boolean DEBUG = false;
     private static final boolean DEBUG_DIRECTION = false;
 
     private static final int MEAN_FILTER_WINDOW = 10;
@@ -313,14 +313,14 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
                 mYDelta = y;
                 if(x > mWidth){
                     //accelerate - right side of the screen
-                    if (D) Log.d(TAG, "Acceleration touch pressed");
-                    command[ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.ACCELERATION_SPEED_LEVEL1;
+                    if (DEBUG) Log.d(TAG, "Acceleration touch pressed");
+                    command[ControlEnum.ACCELERATION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELERATION_SPEED_LEVEL_COMMAND.ACCELERATION_SPEED_LEVEL1;
                     printAccelerationSpeedLevel(ACCELERATION_REVERT_IMAGE_LEVEL_1);
                     mBluetoothSPPConnection.write(command);
                 }else{
                     //reverse - left side of the screen
-                    if (D) Log.d(TAG, "Reversion touch released");
-                    command[ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.REVERT_SPEED_LEVEL1;
+                    if (DEBUG) Log.d(TAG, "Reversion touch released");
+                    command[ControlEnum.ACCELERATION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELERATION_SPEED_LEVEL_COMMAND.REVERT_SPEED_LEVEL1;
                     printAccelerationSpeedLevel(ACCELERATION_REVERT_IMAGE_LEVEL_1);
                     mBluetoothSPPConnection.write(command); 
                 }
@@ -332,44 +332,44 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
                 // The movement is going down -> do nothing in this case
                 if(y - mYDelta > 20){
                     if(x > mWidth){
-                        if (D) Log.d(TAG, "Moving down acceleration - current Y axis - " + y + " - delta Y -" + mYDelta);
+                        if (DEBUG) Log.d(TAG, "Moving down acceleration - current Y axis - " + y + " - delta Y -" + mYDelta);
                     }else{
-                        if (D) Log.d(TAG, "Moving down reversion - current Y axis - " + y + " - delta Y -" + mYDelta);
+                        if (DEBUG) Log.d(TAG, "Moving down reversion - current Y axis - " + y + " - delta Y -" + mYDelta);
                     }
                 }else if(y - mYDelta < -20 ){
                     if(x > mWidth){
                         if(y - mYDelta < -300){
-                            if (D) Log.d(TAG, "Acceleration speed is 3 - current Y axis - " + y + " - Delta Y - " + mYDelta + " - (Y - DeltaY =" + (y-mYDelta));
-                            command[ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.ACCELERATION_SPEED_LEVEL3;
+                            if (DEBUG) Log.d(TAG, "Acceleration speed is 3 - current Y axis - " + y + " - Delta Y - " + mYDelta + " - (Y - DeltaY =" + (y-mYDelta));
+                            command[ControlEnum.ACCELERATION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELERATION_SPEED_LEVEL_COMMAND.ACCELERATION_SPEED_LEVEL3;
                             printAccelerationSpeedLevel(ACCELERATION_IMAGE_LEVEL_3);
                             mBluetoothSPPConnection.write(command);
                         }
                         else if(y - mYDelta < -150){
-                            if (D) Log.d(TAG, "Acceleration speed is 2 - current Y axis - " + y + " - Delta Y - " + mYDelta + " - (Y - DeltaY =" + (y-mYDelta));
-                            command[ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.ACCELERATION_SPEED_LEVEL2;
+                            if (DEBUG) Log.d(TAG, "Acceleration speed is 2 - current Y axis - " + y + " - Delta Y - " + mYDelta + " - (Y - DeltaY =" + (y-mYDelta));
+                            command[ControlEnum.ACCELERATION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELERATION_SPEED_LEVEL_COMMAND.ACCELERATION_SPEED_LEVEL2;
                             printAccelerationSpeedLevel(ACCELERATION_IMAGE_LEVEL_2);
                             mBluetoothSPPConnection.write(command);
                         } else {
-                            if (D) Log.d(TAG, "Acceleration speed is 1 - current Y axis - " + y + " - Delta Y - " + mYDelta + " - (Y - DeltaY =" + (y-mYDelta));
-                            command[ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.ACCELERATION_SPEED_LEVEL1;
+                            if (DEBUG) Log.d(TAG, "Acceleration speed is 1 - current Y axis - " + y + " - Delta Y - " + mYDelta + " - (Y - DeltaY =" + (y-mYDelta));
+                            command[ControlEnum.ACCELERATION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELERATION_SPEED_LEVEL_COMMAND.ACCELERATION_SPEED_LEVEL1;
                             printAccelerationSpeedLevel(ACCELERATION_REVERT_IMAGE_LEVEL_1);
                             mBluetoothSPPConnection.write(command);
                         }
                     } else{
                         if(y - mYDelta < -300){
-                            if (D) Log.d(TAG, "Reversion speed is 3 - current Y axis - " + y + " - Delta Y - " + mYDelta + " - (Y - DeltaY =" + (y-mYDelta));
-                            command[ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.REVERT_SPEED_LEVEL3;
+                            if (DEBUG) Log.d(TAG, "Reversion speed is 3 - current Y axis - " + y + " - Delta Y - " + mYDelta + " - (Y - DeltaY =" + (y-mYDelta));
+                            command[ControlEnum.ACCELERATION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELERATION_SPEED_LEVEL_COMMAND.REVERT_SPEED_LEVEL3;
                             printAccelerationSpeedLevel(REVERT_IMAGE_LEVEL_3);
                             mBluetoothSPPConnection.write(command);
                         }
                         else if(y - mYDelta < -150){
-                            if (D) Log.d(TAG, "Reversion speed is 2 - current Y axis - " + y + " - Delta Y - " + mYDelta + " - (Y - DeltaY =" + (y-mYDelta));
-                            command[ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.REVERT_SPEED_LEVEL2;
+                            if (DEBUG) Log.d(TAG, "Reversion speed is 2 - current Y axis - " + y + " - Delta Y - " + mYDelta + " - (Y - DeltaY =" + (y-mYDelta));
+                            command[ControlEnum.ACCELERATION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELERATION_SPEED_LEVEL_COMMAND.REVERT_SPEED_LEVEL2;
                             printAccelerationSpeedLevel(REVERT_IMAGE_LEVEL_2);
                             mBluetoothSPPConnection.write(command);
                         } else {
-                            if (D) Log.d(TAG, "Reversion speed is 1 - current Y axis - " + y + " - Delta Y - " + mYDelta + " - (Y - DeltaY =" + (y-mYDelta));
-                            command[ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.REVERT_SPEED_LEVEL1;
+                            if (DEBUG) Log.d(TAG, "Reversion speed is 1 - current Y axis - " + y + " - Delta Y - " + mYDelta + " - (Y - DeltaY =" + (y-mYDelta));
+                            command[ControlEnum.ACCELERATION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELERATION_SPEED_LEVEL_COMMAND.REVERT_SPEED_LEVEL1;
                             printAccelerationSpeedLevel(ACCELERATION_REVERT_IMAGE_LEVEL_1);
                             mBluetoothSPPConnection.write(command);
                         }                                               
@@ -381,13 +381,13 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
             // Release touch event
             case MotionEvent.ACTION_UP:{      
                 if(x > mWidth){
-                    if (D) Log.d(TAG, "Acceleration touch released");
-                    command[ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.STOP;
+                    if (DEBUG) Log.d(TAG, "Acceleration touch released");
+                    command[ControlEnum.ACCELERATION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELERATION_SPEED_LEVEL_COMMAND.STOP;
                     printAccelerationSpeedLevel(ACCELERATION_IMAGE_GONE);
                     mBluetoothSPPConnection.write(command);
                 }else  {
-                    if (D) Log.d(TAG, "Reversion touch released");
-                    command[ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELARETION_SPEED_LEVEL_COMMAND.STOP;
+                    if (DEBUG) Log.d(TAG, "Reversion touch released");
+                    command[ControlEnum.ACCELERATION_SPEED_LEVEL_COMMAND.getId()] = ControlEnum.ACCELERATION_SPEED_LEVEL_COMMAND.STOP;
                     printAccelerationSpeedLevel(ACCELERATION_IMAGE_GONE);
                     mBluetoothSPPConnection.write(command); 
                 }
@@ -454,7 +454,7 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
                     String address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
                     BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
                     mBluetoothSPPConnection.open(device);
-                    if (D) Log.d(TAG, "Open connection bluetooth address - " + address);
+                    if (DEBUG) Log.d(TAG, "Open connection bluetooth address - " + address);
                 }
                 break;
             case REQUEST_ENABLE_BT:
@@ -741,10 +741,8 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
 
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
                 SensorManager.SENSOR_DELAY_FASTEST);
-
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
                 SensorManager.SENSOR_DELAY_FASTEST);
-
     }
 
     /**
@@ -754,7 +752,6 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
     private void reset() {
 
         mSensorManager.unregisterListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER));
-
         mSensorManager.unregisterListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD));
 
         initMaths();
@@ -764,14 +761,11 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
 
         hasInitialOrientation = false;
         stateInitializedCalibrated = false;
-
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
         // TODO Auto-generated method stub
-
     }
 
     /**
@@ -812,7 +806,7 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
      * Method called in the moment that the phone starts to connecting with the bluetooth module.
      */
     public void onConnecting() {
-        if (D) Log.d(TAG, "Connecting...");
+        if (DEBUG) Log.d(TAG, "Connecting...");
 
         // Change the text in the connectionInfo TextView
         showText("Connecting...", color_green);
@@ -825,7 +819,7 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
     public void onConnected() {
         final int FIVE_SECONDS = 5000;
 
-        if (D) Log.d(TAG, "Connected");
+        if (DEBUG) Log.d(TAG, "Connected");
         // Change the text in the connectionInfo TextView
         showText("Connected to " + mBluetoothSPPConnection.getDeviceName(), color_green);
         timerDisableText(FIVE_SECONDS);
@@ -838,10 +832,12 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
      */
     @SuppressLint("NewApi")
     public void onConnectionFailed() {
-        if (D) Log.d(TAG, "Connection fail");
+        final int FIVE_SECONDS = 5000;
 
+        if (DEBUG) Log.d(TAG, "Connection fail");
         // Change the text in the connectionInfo TextView
         showText("Connection failed!", color_red);
+        timerDisableText(FIVE_SECONDS);
         mIsconnected = false;
         button_scan.setBackground(getResources().getDrawable(R.drawable.btscan));
     }
@@ -853,16 +849,13 @@ public class PanelActivity extends Activity implements SensorEventListener, Blue
     public void onConnectionLost() {
         final int FIVE_SECONDS = 5000;
 
-        if (D) Log.d(TAG, "Connect lost");
+        if (DEBUG) Log.d(TAG, "Connect lost");
         // Change the text in the connectionInfo TextView
         showText("Not Connected!", color_red);
         timerDisableText(FIVE_SECONDS);
         mIsconnected = false;
         button_scan.setBackground(getResources().getDrawable(R.drawable.btscan));
     }
-
-
-    //useless ? - implemented but not used
 
     public void bluetoothWrite(int bytes, byte[] buffer) {
 
