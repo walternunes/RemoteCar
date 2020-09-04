@@ -20,6 +20,7 @@ The videos bellow show how the car is controlled by cellphone.
 - 3 stages of foward acceleration (normal / high / ultra)
 - 3 stages of reverse acceleration (normal / high / ultra)
 - Direction controlled by cellphone (left / straight / right)
+- Bluetooth discovery and connection (cellphone <-> Arduino)
 
 # **Additional info** #
 
